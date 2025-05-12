@@ -1,6 +1,5 @@
-import threading
 from flask import Flask, render_template, request, redirect, Response, jsonify
-from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from flask_login import LoginManager, login_user, logout_user, login_required
 from data import db_session
 from data.Forms.login_form import LoginForm
 from data.Forms.registration_form import RegistrationForm
@@ -10,7 +9,6 @@ import cv2
 import time
 from datetime import datetime
 import json
-import math
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
