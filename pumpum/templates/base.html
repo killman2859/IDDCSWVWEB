@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDDCSWV - Распознавание дронов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark bg-gradient">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="../static/Images/logo.png" alt="IDDCSWV" height="40" class="me-3">
+                <span class="brand-text">IDDCSWV</span>
+            </a>
+
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/features">Возможности</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#demo">Демо</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Контакты</a></li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center">
+                <!-- Кнопка входа -->
+                {% if current_user.is_authenticated %}
+                    <div class="account-btn me-3">
+                        <a href="/logout" class="text-decoration-none" data-bs-toggle="modal"
+                           data-bs-target="#loginModal">
+                            <div class="d-flex align-items-center">
+                                <!-- Иконка пользователя -->
+                                <div class="user-icon rounded-circle bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-user text-dark"></i>
+                                </div>
+                                <!-- Текст "Войти" -->
+                                <span class="text-light ms-2 d-none d-lg-block">{{ current_user.fullname }}</span>
+                            </div>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="account-btn me-3">
+                        <a href="/login" class="text-decoration-none" data-bs-toggle="modal"
+                           data-bs-target="#loginModal">
+                            <div class="d-flex align-items-center">
+                                <!-- Иконка пользователя -->
+                                <div class="user-icon rounded-circle bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-user text-dark"></i>
+                                </div>
+                                <!-- Текст "Войти" -->
+                                <span class="text-light ms-2 d-none d-lg-block">Войти</span>
+                            </div>
+                        </a>
+                    </div>
+                {% endif %}
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+
+</header>
+
+<div class="flex-grow-1"> <!-- Добавленная обертка -->
+    {% block content %}{% endblock %}
+</div>
+
+
+<footer id="contact" class="bg-dark py-4 mt-auto">
+    <div class="main-footer container text-center">
+        <h3 class="mb-4">Свяжитесь с нами</h3>
+        <div class="social-links mb-3">
+            <a href="https://t.me/Geor_Pukh" class="text-white mx-3"><i class="fab fa-telegram fa-2x"></i></a>
+        </div>
+        <p>&copy; 2025 IDDSWV. Все права защищены</p>
+    </div>
+</footer>
+</body>
+</html>

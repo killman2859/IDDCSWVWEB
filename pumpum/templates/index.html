@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <section class="drone-hero-section">
+        <div class="drone-hero-overlay"></div>
+        <div class="container drone-hero-content h-100 d-flex align-items-center">
+            <div class="row justify-content-center w-100">
+                <div class="col-lg-10 text-center">
+                    <h1 class="drone-hero-title display-3 fw-bold mb-4">Распознавание дронов в реальном времени</h1>
+                    <p class="drone-hero-subtitle lead mb-5">Искусственный интеллект нового поколения для защиты вашего воздушного пространства</p>
+                    {% if current_user.is_authenticated %}
+                        <a href="/drone_detection" class="btn btn-lg drone-btn-glow">
+                            <i class="fas fa-play me-2"></i>Попробовать демо
+                        </a>
+                    {% else %}
+                        <a href="/login" class="btn btn-lg drone-btn-glow">
+                            <i class="fas fa-play me-2"></i>Попробовать демо
+                        </a>
+                    {% endif %}
+                    <div class="mt-5">
+                        <i class="fas fa-drone-alt drone-icon-animation text-accent" style="font-size: 5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

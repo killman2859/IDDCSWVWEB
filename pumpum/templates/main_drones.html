@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детекция дронов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2A5C82;
+            --accent: #32BEA6;
+            --dark: #0F172A;
+            --card: #1E293B;
+        }
+        body {
+            background: var(--dark);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .control-panel {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .video-container {
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 60vh;
+            position: relative;
+        }
+        .video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .stats-panel, .log-panel {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .log-panel {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .btn-control {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-start {
+            background: var(--accent);
+            color: #000;
+        }
+        .btn-stop {
+            background: #FF4D4D;
+            color: white;
+        }
+        .stat-card {
+            background: rgba(42, 92, 130, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .log-entry {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        .log-time {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        .log-details {
+            text-align: right;
+        }
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="control-panel">
+            <h2 class="text-center mb-4"><i class="fas fa-drone me-2"></i>Управление</h2>
+
+            <button id="startBtn" class="btn-control btn-start">
+                <i class="fas fa-play me-2"></i> Запуск
+            </button>
+            <button id="stopBtn" class="btn-control btn-stop" disabled>
+                <i class="fas fa-stop me-2"></i> Стоп
+            </button>
+
+            <div class="mt-4">
+                <label class="form-label">Размер дрона: <span id="sizeValue">0.20</span> м</label>
+                <input type="range" class="form-range" id="sizeSlider" min="0.1" max="1.0" step="0.01" value="0.2">
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label">Уверенность: <span id="confidenceValue">50</span>%</label>
+                <input type="range" class="form-range" id="confidenceSlider" min="1" max="100" value="50">
+            </div>
+
+            <div class="stat-card mt-4">
+                <div>Статус системы</div>
+                <div class="stat-value" id="systemStatus">Неактивна</div>
+            </div>
+
+            <form id="coordinates-form" class="mt-4">
+                <label for="latitude">Широта камеры:</label>
+                <input type="text" class="form-control mb-2" id="latitude" name="latitude" required>
+                <label for="longitude">Долгота камеры:</label>
+                <input type="text" class="form-control mb-2" id="longitude" name="longitude" required>
+                <button type="submit" class="btn-control">Сохранить координаты камеры</button>
+            </form>
+        </div>
+
+        <div>
+            <div class="video-container">
+                <img id="videoFeed" class="video-feed">
+                <span class="badge bg-danger position-absolute top-0 end-0 m-3">LIVE</span>
+            </div>
+
+            <div class="stats-panel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div>Время работы</div>
+                            <div class="stat-value" id="uptime">00:00:00</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div>Среднее расстояние</div>
+                            <div class="stat-value" id="avgDistance">0.00 м</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div>Последний дрон</div>
+                            <div class="stat-value" id="lastDistance">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="log-panel">
+                <h5><i class="fas fa-history me-2"></i>Журнал обнаружений</h5>
+                <div id="detectionLog">
+                    <div class="text-center py-3">Нет данных</div>
+                </div>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://api-maps.yandex.com/2.1/?lang=ru_RU" type="text/javascript"></script>
+    <script>
+        let myMap;
+        let currentPlacemark = null;
+
+        function initMap() {
+            myMap = new ymaps.Map("map", {
+                center: [55.76, 37.64],
+                zoom: 12
+            });
+        }
+
+        function updateMap(coords) {
+            if (currentPlacemark) {
+                myMap.geoObjects.remove(currentPlacemark);
+            }
+            currentPlacemark = new ymaps.Placemark(coords, {
+                balloonContent: 'Дрон обнаружен'
+            });
+            myMap.geoObjects.add(currentPlacemark);
+            myMap.setCenter(coords, 14, { duration: 300 });
+        }
+
+        document.getElementById('coordinates-form').onsubmit = function (event) {
+            event.preventDefault();
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+
+            fetch('/drone_coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ latitude, longitude })
+            }).then(res => res.json())
+              .then(res => {
+                  if (res.status === 'success') {
+                      alert('Координаты камеры обновлены!');
+                  }
+              });
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ymaps.ready(initMap);
+
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const videoFeed = document.getElementById('videoFeed');
+            const sizeSlider = document.getElementById('sizeSlider');
+            const confidenceSlider = document.getElementById('confidenceSlider');
+            const systemStatus = document.getElementById('systemStatus');
+            const uptimeDisplay = document.getElementById('uptime');
+            const lastDistance = document.getElementById('lastDistance');
+            const detectionLog = document.getElementById('detectionLog');
+
+            let statsInterval, logInterval;
+
+            sizeSlider.addEventListener('input', function() {
+                document.getElementById('sizeValue').textContent = this.value;
+                updateSettings();
+            });
+
+            confidenceSlider.addEventListener('input', function() {
+                document.getElementById('confidenceValue').textContent = this.value;
+                updateSettings();
+            });
+
+            startBtn.addEventListener('click', function() {
+                toggleButtonState(true);
+
+                fetch('/control', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({action: 'start'})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'started') {
+                        videoFeed.src = '/video_feed';
+                        systemStatus.textContent = 'Активна';
+                        startMonitoring();
+                    }
+                })
+                .finally(() => toggleButtonState(false));
+            });
+
+            stopBtn.addEventListener('click', function() {
+                toggleButtonState(true, 'Остановка...', true);
+
+                fetch('/control', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({action: 'stop'})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'stopped') {
+                        videoFeed.src = '';
+                        systemStatus.textContent = 'Неактивна';
+                        stopMonitoring();
+                    }
+                })
+                .finally(() => toggleButtonState(false, 'Стоп', true));
+            });
+
+            function updateSettings() {
+                fetch('/update_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        drone_size: sizeSlider.value,
+                        confidence: confidenceSlider.value
+                    })
+                });
+            }
+
+            function startMonitoring() {
+                statsInterval = setInterval(() => {
+                    fetch('/get_stats')
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === 'active') {
+                            const seconds = Math.floor(data.uptime);
+                            const hours = Math.floor(seconds / 3600);
+                            const minutes = Math.floor((seconds % 3600) / 60);
+                            const secs = seconds % 60;
+                            uptimeDisplay.textContent =
+                                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                            if(data.last_detection) {
+                                lastDistance.textContent = `${data.last_detection.distance.toFixed(2)}м`;
+                            }
+
+                            if(data.position) {
+                                updateMap([data.position.latitude, data.position.longitude]);
+                            }
+                        }
+                    });
+                }, 1000);
+
+                logInterval = setInterval(updateLog, 2000);
+                updateLog();
+            }
+
+            function stopMonitoring() {
+                clearInterval(statsInterval);
+                clearInterval(logInterval);
+            }
+
+            function updateLog() {
+                fetch('/get_log')
+                .then(res => res.json())
+                .then(data => {
+                    if(data.log.length > 0) {
+                        let logHTML = '';
+                        data.log.reverse().forEach(entry => {
+                            logHTML += `
+                                <div class="log-entry">
+                                    <span class="log-time">${entry.timestamp}</span>
+                                    <div class="log-details">
+                                        <div>${entry.distance.toFixed(2)} м</div>
+                                        <small>${entry.confidence.toFixed(0)}% уверенности</small>
+                                    </div>
+                                </div>`;
+                        });
+                        detectionLog.innerHTML = logHTML;
+                    } else {
+                        detectionLog.innerHTML = '<div class="text-center py-3">Нет данных</div>';
+                    }
+                });
+            }
+
+            function toggleButtonState(loading, text = '', isStopBtn = false) {
+                const btn = isStopBtn ? stopBtn : startBtn;
+                if(loading) {
+                    btn.disabled = true;
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> ${text}`;
+                } else {
+                    btn.disabled = isStopBtn;
+                    btn.innerHTML = `<i class="fas fa-${isStopBtn ? 'stop' : 'play'} me-2"></i> ${text || (isStopBtn ? 'Стоп' : 'Запуск')}`;
+                }
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

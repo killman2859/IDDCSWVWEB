@@ -1,0 +1,101 @@
+/* Drones Detection Custom Styles */
+:root {
+    --drones-primary: #2A5C82;
+    --drones-accent: #32BEA6;
+    --drones-dark: #0F172A;
+    --drones-card: #1E293B;
+}
+
+.drones-dashboard {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.drones-control-panel {
+    background: var(--drones-card);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.drones-video-container {
+    background: #000;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 60vh;
+    position: relative;
+}
+
+.drones-video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.drones-stats-panel,
+.drones-log-panel {
+    background: var(--drones-card);
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.drones-log-panel {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.drones-btn-control {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.drones-btn-start {
+    background: var(--drones-accent);
+    color: #000;
+}
+
+.drones-btn-stop {
+    background: #FF4D4D;
+    color: white;
+}
+
+.drones-stat-card {
+    background: rgba(42, 92, 130, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid var(--drones-accent);
+}
+
+.drones-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--drones-accent);
+}
+
+.drones-log-entry {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+}
+
+.drones-log-time {
+    color: var(--drones-accent);
+    font-weight: bold;
+}
+
+#drones-map {
+    width: 100%;
+    height: 400px;
+    margin-top: 20px;
+}
