@@ -31,7 +31,7 @@ system_state = {
 }
 
 drone_tracker = DroneTracker(
-    'best~0.979.pt',
+    '../best~0.979.pt',
     drone_real_size=system_state['settings']['drone_size'],
     confidence_threshold=system_state['settings']['confidence'],
     focal_length=system_state['settings']['focal_length']
